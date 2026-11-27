@@ -57,40 +57,65 @@ func IsPalindrome(x int) bool {
 // 给定一个只包括 '(', ')', '{', '}', '[', ']' 的字符串，判断字符串是否有效
 func IsValid(s string) bool {
 	stack := make([]rune, 0)
-	for _, v := range s {
-		if v == '(' || v == '[' || v == '{' {
-			stack = append(stack, v)
+
+	charArray := []rune(s)
+	for _, c := range charArray {
+		if c == '(' || c == '{' || c == '[' {
+			// 入栈
+			stack = append(stack, c)
 		} else {
-			temp := stack[len(stack)-1]
-			if (v == ')' && temp == '(') || (v == ']' && temp == '[') || (temp == '{' && v == '}') {
+			// 如果是右括号，检查栈是否为空以及是否匹配
+			if len(stack) > 0 && leftOf(c) == stack[len(stack)-1] {
+				// 出栈
 				stack = stack[:len(stack)-1]
 			} else {
 				return false
 			}
 		}
 	}
-	return true
+	return len(stack) == 0
+}
+
+// leftOf 返回右括号对应的左括号
+func leftOf(c rune) rune {
+	if c == '}' {
+		return '{'
+	}
+	if c == ')' {
+		return '('
+	}
+	return '['
 }
 
 // 4. 最长公共前缀
 // 查找字符串数组中的最长公共前缀
 func LongestCommonPrefix(strs []string) string {
-	ans := strs[0]
-	for _, value := range strs {
-		for i := 0; i < len(value) && i < len(ans); i++ {
-			if ans[i] == value[i] {
-				continue
+	if len(strs) == 0 {
+		return ""
+	}
+
+	first := strs[0]
+	for i := 0; i < len(first); i++ {
+		char := first[i]
+
+		// 从第二个字符串开始比较
+		for j := 1; j < len(strs); j++ {
+			currentStr := strs[j]
+			// 如果当前索引超出了某个字符串的长度，或者字符不匹配
+			if i >= len(currentStr) || currentStr[i] != char {
+				return first[:i]
 			}
-			ans = ans[:i]
-			break
 		}
 	}
-	return ans
+	return first
 }
 
 // 5. 加一
 // 给定一个由整数组成的非空数组所表示的非负整数，在该数的基础上加一
 func PlusOne(digits []int) []int {
+	if len(digits) == 0 {
+		return digits
+	}
 	j := 0
 	i := len(digits) - 1
 	if digits[i]+1 >= 10 {
@@ -122,6 +147,9 @@ func PlusOne(digits []int) []int {
 // 给你一个有序数组 nums ，请你原地删除重复出现的元素，使每个元素只出现一次，返回删除后数组的新长度。
 // 不要使用额外的数组空间，你必须在原地修改输入数组并在使用 O(1) 额外空间的条件下完成。
 func RemoveDuplicates(nums []int) int {
+	if len(nums) == 0 {
+		return 0
+	}
 	slow, fast := 0, 0
 	for fast < len(nums) {
 		if nums[fast] != nums[slow] {
